@@ -1,0 +1,171 @@
+﻿
+@{
+    ViewBag.Title = "Assessment";
+}
+
+<section class="section bg-light custom-tabs">
+    <div class="container">
+        <div class="row">
+
+            <div class="col-md-4 border-right element-animate">
+                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <a class="nav-link active" id="v-pills-home-tab" data-toggle="pill" href="#v-pills-home" role="tab" aria-controls="v-pills-home" aria-selected="true"><span></span></a>
+                </div>
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-md-7 element-animate" id="startAss_first">
+
+                <div class="tab-content" id="v-pills-tabContent">
+                    <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                        <span class="icon flaticon-hospital"></span>
+                        <h2 class="text-primary">Hi</h2>
+                        <p class="lead">I can help you find out what's going on. Just start a  symptom assessment.</p>
+                        <p>Name : @Html.Editor("Name", new { @class ="form-control form col-md-6", @placeholder="Your Name"  })<br /></p>
+                        <p>Age : @Html.Editor("Age", new { @class = "form-control form col-md-6", @placeholder = "Your Age", @type = "number" })<br /></p>
+                        <p><a class="btn btn-primary" id="startassessment">Start</a></p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-md-7 element-animate" id="startAss_second">
+
+                <div class="tab-content" id="v-pills-tabContent">
+                    <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                        <span class="icon flaticon-hospital"></span>
+                        <h2 class="text-primary">Ok, <p id="UserName"></p> </h2>
+                        <p class="lead">What condition are you in now?</p>
+                        <p>@Html.DropDownList("base_symtomps", new SelectList(ViewBag.symptoms), new { @class = "form-control" })</p>
+
+                        <p><a class="btn btn-primary" id="submitbasesymptom">Submit</a></p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-md-7 element-animate" id="startAss_third">
+
+                <div class="tab-content" id="v-pills-tabContent">
+                    <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                        <span class="icon flaticon-hospital"></span>
+                        <h2 class="text-primary">Oh, i see <p id="UserName"></p> </h2>
+                        <p class="lead">For how long are you feeling the same?</p>
+                        <p>@Html.Editor("txtbasesymptomduration", new { @class = "form-control form col-md-6", @placeholder = "duration", @type = "number" })<br /></p>
+
+                        <p><a class="btn btn-primary" id="btnsubmitbasesymptomduration">Submit</a></p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-md-7 element-animate" id="startAss_dynamic_yesno">
+
+                <div class="tab-content" id="v-pills-tabContent">
+                    <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                        <span class="icon flaticon-hospital"></span>
+                        <h2 class="text-primary"><p id="UserName"></p> </h2>
+                        <p class="lead">Is there any other conditions you are feeling right now?</p>
+                        <p><a class="btn btn-primary col-md-3" id="btnstartfurtherassessment">Yes</a></p>
+                        
+
+                        <p><a class="btn btn-primary col-md-3 btnstopfurtherassessment">No</a></p>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-md-7 element-animate" id="startAss_dynamic_question_screen">
+
+                <div class="tab-content" id="v-pills-tabContent">
+                    <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                        <span class="icon flaticon-hospital"></span>
+                        <h3 class="text-primary"><p id="UserName"></p>do you also have</h3>
+                        <h3 class="lead"><span id="dynamicquestionspan"></span>?</h3>
+
+                        <p><a class="btn btn-primary col-md-3" id="btnyesrandomsymptom">Yes</a></p>
+
+
+                        <p><a class="btn btn-primary col-md-3 btnstopfurtherassessment" >No</a></p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- END section -->
+
+<!-- END cta-link -->
+
+<script>
+    $("#btnstartfurtherassessment").click(function () {
+        UserName = localStorage.getItem("localStorage_Name");
+        $("#startAss_dynamic_question_screen #UserName").text(UserName);
+        $("#startAss_dynamic_yesno").hide();
+        $("#startAss_dynamic_question_screen").show();
+
+        // Need to fetch symptoms matching with the input
+        //console.log(JSON.stringify( symptomsarray.join(",")));
+        //var data = JSON.stringify(symptomsarray)
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetRandomSymptom")',
+            data: { "data": JSON.stringify(symptomsarray.join(",")) },
+            dataType: 'json',
+            success: function (data) {
+                $("#dynamicquestionspan").text(data);
+                //$('#id').text(emp.employee.Id);
+                //$('#firstName').text(emp.employee.FirstName);
+                //$('#lastName').text(emp.employee.LastName);
+            },
+            error: function (emp) {
+                alert('error');
+            }
+        });
+
+
+    //    $.post("/Home/GetRandomSymptom", symptomsarray, function (data, textStatus) {
+    //        $("#dynamicquestionspan").text(result);
+    //    }, "json");
+
+    })
+    $("#btnyesrandomsymptom").click(function () {
+        symptomsarray.push($("#dynamicquestionspan").text());
+        //        $("#dynamicquestionspan").text(randomsymptom);
+        //$.getJSON("/Home/GetRandomSymptom", function (result) {
+        //    $("#dynamicquestionspan").text(result);
+        //});
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetRandomSymptom")',
+            data: { "data": JSON.stringify(symptomsarray.join(",")) },
+            dataType: 'json',
+            success: function (data) {
+                $("#dynamicquestionspan").text(data);
+                //$('#id').text(emp.employee.Id);
+                //$('#firstName').text(emp.employee.FirstName);
+                //$('#lastName').text(emp.employee.LastName);
+            },
+            error: function (emp) {
+                alert('error');
+            }
+        });
+    });
+
+    $(".btnstopfurtherassessment").click(function () {
+
+        @*$.ajax({
+            type: 'GET',
+            url: '@Url.Action("Diagnosis")',
+            data: { "data": JSON.stringify(symptomsarray.join(",")) },
+            dataType: 'json',
+            success: function (data) {
+                alert("Success")
+                //$("#dynamicquestionspan").text(data);
+                //$('#id').text(emp.employee.Id);
+                //$('#firstName').text(emp.employee.FirstName);
+                //$('#lastName').text(emp.employee.LastName);
+            },
+            error: function (emp) {
+                alert('error');
+            }
+        });*@
+        $(location).attr('href', 'http://localhost:59044/Home/Diagnosis');
+    })
+</script>
